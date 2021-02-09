@@ -25,7 +25,8 @@ Quality control criteria have been set with the "Guidelines on Quality Control
 Procedures for Data from Automatic Weather Stations" (WMO, 2014)
 
 Ver. 1 LAPUP, A. Argiriou, 2017-10-23
-Ver. 2 LAPUP, A. Argiriou, 2020-01-29 (Correction of errors due to package upgrades)
+Ver. 2 LAPUP, A. Argiriou, 2020-01-29 - Correction of errors due to package upgrades
+Ver. 2.1 LAPUP, A. Argiriou, 2020-02-09 - Calculation of the annual min and max of the various parameters
 
 """
 
@@ -149,7 +150,7 @@ ax.legend(loc=2, title='Wind speed (m/s)')
 plt.savefig('windrose' + annum + '.pdf')
 plt.show()
 
-# Averages after quality control
+# Averages & min, max, after quality control
 
 # Convert horizontal wind speed and direction to zonal and meridional values
 
@@ -160,10 +161,15 @@ log_file = open('Meteo_' + annum + '_log.txt', 'a+')
 log_file.write('\n')
 
 for parameter in ['T', 'phi', 'pres']:
+    log_file.write('\n')
     log_file.write(parameter + ' averages\n')
     log_file.write(str(df[parameter].resample('M').mean()))
     log_file.write('\n')
-    log_file.write(str(df[parameter].resample('Y').mean()))
+    log_file.write("Annual mean:  " + str(df[parameter].resample('Y').mean()))
+    log_file.write('\n')
+    log_file.write("Annual min:  " + str(df[parameter].min()))
+    log_file.write('\n')
+    log_file.write("Annual max:  " + str(df[parameter].max()))
     log_file.write('\n')
 
 log_file.write('\n')
@@ -184,19 +190,23 @@ log_file.write('\n')
 log_file.write(str(wd_monthly))
 log_file.write('\n')
 
-log_file.write('Annual averages\n')
+log_file.write('Annual statistics\n')
 wind_u_annual = df['wind_u'].resample('Y').mean()
 wind_v_annual = df['wind_v'].resample('Y').mean()
 ws_annual = np.sqrt(wind_u_annual ** 2 + wind_v_annual ** 2)
 wd_annual = wind_direction(wind_u_annual.values, wind_v_annual.values)
-log_file.write(str(ws_annual))
+log_file.write("Annual mean: " + str(ws_annual) + " at " + str(wd_annual) + " degrees")
 log_file.write('\n')
-log_file.write(str(wd_annual))
+log_file.write("Annual max:  " + str(df['ws'].max()))
 log_file.write('\n')
 
 log_file.write('Precipitation' + ' sums\n')
+log_file.write('\n')
 log_file.write(str(df['precip'].resample('M').sum()))
-log_file.write(str(df['precip'].resample('Y').sum()))
+log_file.write('\n')
+log_file.write("Annual sum: " + str(df['precip'].resample('Y').sum()))
+log_file.write('\n')
+log_file.write("Annual max: " + str(df['precip'].max()))
 
 limit = [3, 10, 20]
 i_limit = 0
